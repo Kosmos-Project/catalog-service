@@ -1,6 +1,6 @@
 package com.kosmos.catalog_service.aspect.product.api;
 
-import com.kosmos.catalog_service.aspect.product.application.ProductService;
+import com.kosmos.catalog_service.aspect.product.service.ProductService;
 import com.kosmos.catalog_service.aspect.product.dao.Product;
 import com.kosmos.catalog_service.aspect.product.dto.*;
 import com.kosmos.catalog_service.common.http.DtoMetadata;

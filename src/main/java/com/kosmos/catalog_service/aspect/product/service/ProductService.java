@@ -1,4 +1,4 @@
-package com.kosmos.catalog_service.aspect.product.application;
+package com.kosmos.catalog_service.aspect.product.service;
 
 import com.google.gson.Gson;
 import com.kosmos.catalog_service.aspect.product.dao.Product;
