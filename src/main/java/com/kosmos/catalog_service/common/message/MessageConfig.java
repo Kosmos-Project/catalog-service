@@ -34,9 +34,7 @@ public class MessageConfig implements WebMvcConfigurer {
     public static MessageSource getValidationMessageSource() {
         ReloadableResourceBundleMessageSource msgSrc = new ReloadableResourceBundleMessageSource();
         msgSrc.setBasenames(
-                "static/messages/catalog/error",
-                "static/messages/catalog/response",
-                "static/messages/catalog/validation"
+                "static/messages/product/validation"
         );
         return msgSrc;
     }
@@ -46,19 +44,19 @@ public class MessageConfig implements WebMvcConfigurer {
     public static MessageSource getStorageMessageSource() {
         ReloadableResourceBundleMessageSource msgSrc = new ReloadableResourceBundleMessageSource();
         msgSrc.setBasenames(
-                "static/messages/catalog/error"
+                "static/messages/storage/error"
         );
         return msgSrc;
     }
 
     // 카탈로그 Aspect 에 속하는 클래스들의 에러/반환값/검증 관련 스트링을 불러옵니다
     @Bean
-    public static MessageSource getCatalogMessageSource() {
+    public static MessageSource getProductMessageSource() {
         ReloadableResourceBundleMessageSource msgSrc = new ReloadableResourceBundleMessageSource();
         msgSrc.setBasenames(
-                "static/messages/catalog/error",
-                "static/messages/catalog/response",
-                "static/messages/catalog/validation"
+                "static/messages/product/error",
+                "static/messages/product/response",
+                "static/messages/product/validation"
         );
         return msgSrc;
     }
