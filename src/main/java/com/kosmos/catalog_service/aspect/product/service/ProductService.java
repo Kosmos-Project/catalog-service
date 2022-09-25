@@ -1,40 +1,25 @@
 package com.kosmos.catalog_service.aspect.product.service;
 
-import com.google.gson.Gson;
 import com.kosmos.catalog_service.aspect.product.dao.Product;
 import com.kosmos.catalog_service.aspect.product.dao.ProductRepository;
-import com.kosmos.catalog_service.aspect.product.dto.*;
 import com.kosmos.catalog_service.common.message.MessageConfig;
-import com.kosmos.catalog_service.common.storage.FileMetadata;
-import com.kosmos.catalog_service.common.storage.FileService;
-import com.kosmos.catalog_service.common.storage.FileType;
-import com.kosmos.catalog_service.common.storage.ImageUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 @RequiredArgsConstructor
 @Service
 public class ProductService {
     private final MessageSource msgSrc = MessageConfig.getProductMessageSource();
     private final ProductRepository productRepository;
-    private final FileService fileServ;
 
-    //FIXME: 아래 코드는 CRUD 구현 참고용 예시 코드입니다.
+    @Transactional
+    public Iterable<Product> getAllProducts() {
+        return productRepository.findAll();
+    }
 
+/*
     // CREATE
     @Transactional
     public Long createProduct(CreateProductReqDto reqDto) throws Exception {
@@ -101,65 +86,6 @@ public class ProductService {
                 ));
     }
 
-    public byte[] fetchProductImage(Long productId, Integer fileIndex) throws Exception {
-        Product currentProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new Exception(
-                        msgSrc.getMessage("error.product.notExists", null, Locale.ENGLISH)
-                ));
-
-        // 이미지 파일 인출
-        return fileServ.readFileFromFileMetadataListJson(currentProduct.getImageAttachments(), fileIndex, ImageUtil.GENERAL_IMAGE);
-    }
-
-    public ResponseEntity<byte[]> fetchProductVideo(String fileUrl, String range) throws Exception {
-        Long fileSize = fileServ.getFileSize(fileUrl);
-        String fileType = fileServ.getFileExtension(fileUrl);
-
-        long rangeStart = 0;
-        long rangeEnd;
-        byte[] data;
-
-        // HTTP Range 필드가 비어있으면 파일 전체 fetch
-        if (range == null) {
-            return ResponseEntity.status(HttpStatus.OK)
-                    .header("Content-Type", "video/" + fileType)
-                    .header("Content-Length", String.valueOf(fileSize))
-                    .body(fileServ.readByteRange(fileUrl, rangeStart, fileSize - 1)); // Read the object and convert it as bytes
-        }
-
-        // 요청받은 Range 에 따라 파일을 나누어 fetch
-        String[] ranges = range.split("-");
-        rangeStart = Long.parseLong(ranges[0].substring(6));
-        if (ranges.length > 1) {
-            rangeEnd = Long.parseLong(ranges[1]);
-        } else {
-            rangeEnd = fileSize - 1;
-        }
-        if (fileSize < rangeEnd) {
-            rangeEnd = fileSize - 1;
-        }
-
-        System.out.println("Video Streaming... | Range: bytes=" + rangeStart + "-" + rangeEnd);
-        data = fileServ.readByteRange(fileUrl, rangeStart, rangeEnd);
-
-        String contentLength = String.valueOf((rangeEnd - rangeStart) + 1);
-        return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
-                .header("Content-Type", "video/" + fileType)
-                .header("Accept-Ranges", "bytes")
-                .header("Content-Length", contentLength)
-                .header("Content-Range", "bytes" + " " + rangeStart + "-" + rangeEnd + "/" + fileSize)
-                .body(data);
-    }
-
-    public byte[] fetchProductFile(Long productId, Integer fileIndex) throws Exception {
-        Product currentProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new Exception(
-                        msgSrc.getMessage("error.product.notExists", null, Locale.ENGLISH)
-                ));
-
-        // 일반 파일 인출
-        return fileServ.readFileFromFileMetadataListJson(currentProduct.getFileAttachments(), fileIndex, ImageUtil.NOT_IMAGE);
-    }
 
     // UPDATE
     @Transactional
@@ -191,57 +117,7 @@ public class ProductService {
         productRepository.save(currentProduct);
     }
 
-    @Transactional
-    public List<FileMetadata> updateProductFile(UpdateProductFileReqDto reqDto, FileType fileType) throws Exception {
-        // 기존 게시물 정보 로드
-        Product currentProduct = productRepository.findByAuthorAndId(1L, reqDto.getId())
-                .orElseThrow(() -> new Exception(
-                        msgSrc.getMessage("error.product.notExists", null, Locale.ENGLISH)
-                ));
 
-        // 첨부파일 인출
-        List<MultipartFile> uploadedFileList = reqDto.getFileList();
-
-        List<FileMetadata> fileMetadataList;
-        if (uploadedFileList.size() == 0) {
-            throw new Exception(
-                    msgSrc.getMessage("error.fileList.empty", null, Locale.ENGLISH)
-            );
-        }
-
-        switch (fileType) {
-            case GENERAL_FILE -> {
-                // 해당 게시물의 파일 스토리지에 일반 파일 저장
-                fileMetadataList = fileServ.saveProductFileAttachments(reqDto.getId(), uploadedFileList);
-
-                // 파일정보 DB 데이터 업데이트
-                currentProduct.setFileAttachments(new Gson().toJson(fileMetadataList));
-                productRepository.save(currentProduct);
-                return fileMetadataList;
-            }
-            case IMAGE_FILE -> {
-                // 해당 게시물의 이미지 스토리지에 이미지 파일 저장
-                fileMetadataList = fileServ.saveProductImageAttachments(reqDto.getId(), uploadedFileList);
-
-                // 파일정보 DB 데이터 업데이트
-                currentProduct.setImageAttachments(new Gson().toJson(fileMetadataList));
-                productRepository.save(currentProduct);
-                return fileMetadataList;
-            }
-            case VIDEO_FILE -> {
-                // 해당 게시물의 비디오 스토리지에 비디오 파일 저장
-                fileMetadataList = fileServ.saveProductVideoAttachments(reqDto.getId(), uploadedFileList);
-
-                // 파일정보 DB 데이터 업데이트
-                currentProduct.setVideoAttachments(new Gson().toJson(fileMetadataList));
-                productRepository.save(currentProduct);
-                return fileMetadataList;
-            }
-            default -> throw new Exception(
-                    msgSrc.getMessage("error.product.invalidFileType", null, Locale.ENGLISH)
-            );
-        }
-    }
 
     // DELETE
     @Transactional
@@ -254,41 +130,6 @@ public class ProductService {
         fileServ.deleteProductFileStorage(product.getId());
         productRepository.delete(product);
     }
+*/
 
-    @Transactional
-    public void deleteProductFile(DeleteProductFileReqDto reqDto, FileType fileType) throws Exception {
-        // 기존 게시물 정보 로드
-        Product currentProduct = productRepository.findByAuthorAndId(1L, reqDto.getId())
-                .orElseThrow(() -> new Exception(
-                        msgSrc.getMessage("error.product.notExists", null, Locale.ENGLISH)
-                ));
-
-        switch (fileType) {
-            case GENERAL_FILE -> {
-                // 기존 게시물의 모든 일반 파일 삭제
-                fileServ.deleteProductFiles(currentProduct.getFileAttachments(), ImageUtil.NOT_IMAGE);
-
-                // 기존 게시물의 fileAttachments 컬럼 null 설정 후 업데이트
-                currentProduct.setFileAttachments(null);
-            }
-            case IMAGE_FILE -> {
-                // 기존 게시물의 모든 이미지 파일 삭제
-                fileServ.deleteProductFiles(currentProduct.getImageAttachments(), ImageUtil.GENERAL_IMAGE);
-
-                // 기존 게시물의 imageAttachments 컬럼 null 설정 후 업데이트
-                currentProduct.setImageAttachments(null);
-            }
-            case VIDEO_FILE -> {
-                // 기존 게시물의 모든 비디오 파일 삭제
-                fileServ.deleteProductFiles(currentProduct.getVideoAttachments(), ImageUtil.NOT_IMAGE);
-
-                // 기존 게시물의 videoAttachments 컬럼 null 설정 후 업데이트
-                currentProduct.setVideoAttachments(null);
-            }
-            default -> throw new Exception(
-                    msgSrc.getMessage("error.product.invalidFileType", null, Locale.ENGLISH)
-            );
-        }
-        productRepository.save(currentProduct);
-    }
 }
