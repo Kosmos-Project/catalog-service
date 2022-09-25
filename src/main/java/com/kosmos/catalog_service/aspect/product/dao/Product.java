@@ -1,6 +1,7 @@
 package com.kosmos.catalog_service.aspect.product.dao;
 
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -13,44 +14,43 @@ import java.time.LocalDateTime;
 @Builder
 public class Product {
     
-    //FIXME: 아래 코드는 CRUD 구현을 위한 참고용 예제 코드입니다
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
     private Long id;
 
-    /*
-    아래는 참고용 예시이나 타 프로젝트에서 가져온 예시 코드인 관계로 의존하는 VO가 없어 주석처리
-    @ManyToOne(targetEntity = Account.class, fetch = FetchType.EAGER)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "account_id")
-    private Account author;
-
-    @ManyToOne(targetEntity = Pet.class, fetch = FetchType.EAGER)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "pet_id")
-    private Pet pet;
-     */
-
-    @Lob
-    @Column
-    private String contents;
+    @Column(nullable = false, length = 50, name = "product_name")
+    private String name;
     @Column(nullable = false)
+    private Integer price;
+    @Column(nullable = false, name = "seller_id")
+    private Long sellerId;
+    @Lob
+    private String description;
+
+    @Column(nullable = false, length = 20)
+    private String categoryFirst;
+    @Column(length = 20)
+    private String categorySecond;
+    @Column(length = 20)
+    private String categoryThird;
+
+    @Column(nullable = false)
+    @ColumnDefault("1")
+    private Integer stock;
+
+//    @Enumerated(EnumType.String)
+//    @Column(nullable = false)
+//    private ShippingType shippingType;
+    @Column(nullable = false)
+    private Integer shippingPrice;
+
+    @Column(nullable = false)
+    private Integer reservationPrice;
+
+    @Column(nullable = false, columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime timestamp;
-    @Column(nullable = false)
-    private Boolean edited;
 
-    @Column(name = "tag_list")
-    private String serializedHashTags;
-
-    @Column
-    private String disclosure;
-    private Double geoTagLat;
-    private Double geoTagLong;
-    @Lob
-    private String imageAttachments;
-    @Lob
-    private String videoAttachments;
-    @Lob
-    private String fileAttachments;
+    @ColumnDefault("0")
+    private Integer reservedStock;
 }
