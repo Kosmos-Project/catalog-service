@@ -1,15 +1,12 @@
-package com.kosmos.catalog_service.aspect.product.dto;
+package com.kosmos.catalog_service.aspect.product.dto.product;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.io.Serializable;
 
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class ResponseProductDto {
+public class ProductDto implements Serializable {
 
-    private String name;
     private Integer price;
     private Long sellerId;
     private String description;
@@ -21,6 +18,12 @@ public class ResponseProductDto {
     private Integer stock;
     private Integer shippingPrice;
     private Integer reservationPrice;
-    private LocalDateTime timestamp;
+
     private Integer reservedStock;
+
+    private Integer totalPrice;
+
+    private String orderId;
+    private String userId;
+
 }
