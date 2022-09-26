@@ -1,5 +1,7 @@
-package com.kosmos.catalog_service.aspect.product.dao;
+package com.kosmos.catalog_service.aspect.product.dao.repository;
 
+import com.kosmos.catalog_service.aspect.product.dao.entity.Category;
+import com.kosmos.catalog_service.aspect.product.dao.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -17,10 +19,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findByCategoryFirst(String categoryFirst);
 
-    @Query("select p from Product p where p.categoryFirst = ?1 and p.categorySecond = ?2")
-    List<Product> findByCategoryFirstAndCategorySecond(String categoryFirst, String categorySecond);
-
-    @Query("select p from Product p where p.categoryFirst = ?1 and p.categorySecond = ?2 and p.categoryThird = ?3")
-    List<Product> findByCategoryFirstAndCategorySecondAndCategoryThird(String categoryFirst, String categorySecond, String categoryThird);
+    List<Product> findByCategory(Category category);
 
 }

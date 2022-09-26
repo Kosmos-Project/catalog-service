@@ -1,7 +1,7 @@
 package com.kosmos.catalog_service.aspect.product.service;
 
-import com.kosmos.catalog_service.aspect.product.dao.Product;
-import com.kosmos.catalog_service.aspect.product.dao.ProductRepository;
+import com.kosmos.catalog_service.aspect.product.dao.entity.Product;
+import com.kosmos.catalog_service.aspect.product.dao.repository.ProductRepository;
 import com.kosmos.catalog_service.common.message.MessageConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
