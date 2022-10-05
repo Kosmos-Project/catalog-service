@@ -32,9 +32,13 @@ dependencies {
 	implementation 'org.apache.commons:commons-lang3:3.12.0'
 	implementation 'org.imgscalr:imgscalr-lib:4.2'
 	implementation 'com.drewnoakes:metadata-extractor:2.18.0'
+	implementation 'com.h2database:h2:2.1.214'
+	implementation 'org.modelmapper:modelmapper:3.1.0'
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 
 	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'mysql:mysql-connector-java'
+//	runtimeOnly 'mysql:mysql-connector-java'
+	runtimeOnly 'com.h2database:h2'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }

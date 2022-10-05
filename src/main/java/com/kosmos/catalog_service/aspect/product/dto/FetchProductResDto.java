@@ -1,6 +1,6 @@
 package com.kosmos.catalog_service.aspect.product.dto;
 
-import com.kosmos.catalog_service.aspect.product.dao.Product;
+import com.kosmos.catalog_service.aspect.product.dao.entity.Product;
 import com.kosmos.catalog_service.common.http.DtoMetadata;
 import lombok.Data;
 import org.springframework.data.domain.Pageable;
